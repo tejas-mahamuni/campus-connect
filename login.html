@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Campus Connect</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Apple font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="form.css">
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Campus Connect</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="event.html">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="scanner.html">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="nakshtra.html">Nakshatra</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html">Attendance</a></li>
+                    <li class="nav-item"><a class="nav-link" href="feedback.html">Feedback</a></li>
+                    <li class="nav-item">
+                        <form class="d-flex">
+                            <div class="search-bar">
+                                <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            </div>
+                        </form>
+                    </li>
+                    <li class="nav-item d-flex align-items-center ms-3">
+                        <button id="modeToggle" class="btn btn-outline-light btn-sm" title="Toggle Dark/Light Mode">
+                            <i class="bi bi-moon-fill" id="modeIcon"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <a href="login.html" class="btn btn-primary ms-lg-3 mt-2 mt-lg-0 active">Log in</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <script>
+        // Dark/Light mode toggle
+        const modeToggle = document.getElementById('modeToggle');
+        const modeIcon = document.getElementById('modeIcon');
+        const currentMode = localStorage.getItem('mode') || 'dark';
+
+        function applyMode(mode) {
+            if (mode === 'light') {
+                document.body.classList.add('light-mode');
+                modeIcon.classList.remove('bi-moon-fill');
+                modeIcon.classList.add('bi-sun-fill');
+            } else {
+                document.body.classList.remove('light-mode');
+                modeIcon.classList.remove('bi-sun-fill');
+                modeIcon.classList.add('bi-moon-fill');
+            }
+        }
+
+        applyMode(currentMode);
+
+        modeToggle.addEventListener('click', () => {
+            const newMode = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+            applyMode(newMode);
+            localStorage.setItem('mode', newMode);
+        });
+    </script>
+
+    <header class="hero-section text-center">
+        <h1>Login to Campus Connect</h1>
+        <p>Access your account to manage events and track attendance</p>
+    </header>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card">
+                    <div class="card-body p-4 p-md-5">
+                        <div id="loginError" class="alert alert-danger d-none" role="alert">
+                            Invalid email or password. Please try again.
+                        </div>
+                        <form id="loginForm">
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" id="email" class="form-control" required />
+                            </div>
+                          
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" id="password" class="form-control" required />
+                            </div>
+                          
+                            <div class="row mb-4">
+                                <div class="col d-flex">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="rememberMe" checked />
+                                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                                    </div>
+                                </div>
+                          
+                                <div class="col text-end">
+                                    <a href="#" class="text-primary">Forgot password?</a>
+                                </div>
+                            </div>
+                          
+                            <button type="submit" class="btn btn-primary btn-block mb-4 w-100">Sign in</button>
+                          
+                            <div class="text-center">
+                                <p>Not a member? <a href="form.html" class="text-primary">Register</a></p>
+                                <p class="mb-3">or sign up with:</p>
+                                <div class="d-flex justify-content-center mb-4">
+                                    <button type="button" id="googleSignIn" class="btn btn-outline-primary btn-floating mx-1 rounded-circle">
+                                        <i class="bi bi-google"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary btn-floating mx-1 rounded-circle">
+                                        <i class="bi bi-facebook"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary btn-floating mx-1 rounded-circle">
+                                        <i class="bi bi-twitter"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary btn-floating mx-1 rounded-circle">
+                                        <i class="bi bi-github"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Follow Us</h5>
+                    <a href="https://facebook.com" target="_blank"><img src="img/facebook.png" alt="Facebook" class="social-icon"></a>
+                    <a href="https://twitter.com" target="_blank"><img src="img/xtwitter.png" alt="Twitter" class="social-icon"></a>
+                    <a href="https://instagram.com" target="_blank"><img src="img/instagram.png" alt="Instagram" class="social-icon"></a>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="event.html">Events</a></li>
+                        <li><a href="nakshtra.html">Nakshatra</a></li>
+                        <li><a href="attendance.html">Attendance</a></li>
+                        <li><a href="feedback.html">Feedback</a></li>
+                        <li><a href="scanner.html">Scanner</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Us</h5>
+                    <p>MIT Academy of Engineering, Alandi</p>
+                    <p>Email: info@campusconnect.com</p>
+                    <p>Phone: +123 456 7890</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Campus Connect | All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "your-app.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-app.appspot.com",
+            messagingSenderId: "your-messaging-sender-id",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Get elements
+        const loginForm = document.getElementById('loginForm');
+        const googleBtn = document.getElementById('googleSignIn');
+        const loginError = document.getElementById('loginError');
+
+        // Email/Password Sign in
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in
+                    const user = userCredential.user;
+                    // Store user data in localStorage
+                    localStorage.setItem('user', JSON.stringify({
+                        email: user.email,
+                        uid: user.uid,
+                        displayName: user.displayName
+                    }));
+                    // Redirect to dashboard
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    loginError.textContent = error.message;
+                    loginError.classList.remove('d-none');
+                });
+        });
+
+        // Google Sign In
+        googleBtn.addEventListener('click', function() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then((result) => {
+                    // Google Sign In successful
+                    const user = result.user;
+                    // Store user data
+                    localStorage.setItem('user', JSON.stringify({
+                        email: user.email,
+                        uid: user.uid,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL
+                    }));
+                    // Redirect to dashboard
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    loginError.textContent = error.message;
+                    loginError.classList.remove('d-none');
+                });
+        });
+
+        // Check authentication state
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in
+                console.log('User is signed in:', user.email);
+            } else {
+                // User is signed out
+                console.log('User is signed out');
+            }
+        });
+    </script>
+</body>
+</html> 
