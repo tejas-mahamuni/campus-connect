@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - Campus Connect</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Apple font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Campus Connect</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="event.html">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="scanner.html">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="nakshtra.html">Nakshatra</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html">Attendance</a></li>
+                    <li class="nav-item"><a class="nav-link" href="feedback.html">Feedback</a></li>
+                    <li class="nav-item">
+                        <form class="d-flex">
+                            <div class="search-bar">
+                                <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            </div>
+                        </form>
+                    </li>
+                    <li class="nav-item d-flex align-items-center ms-3">
+                        <button id="modeToggle" class="btn btn-outline-light btn-sm" title="Toggle Dark/Light Mode">
+                            <i class="bi bi-moon-fill" id="modeIcon"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <a href="login.html" class="btn btn-primary ms-lg-3 mt-2 mt-lg-0">Log in</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <script>
+        // Dark/Light mode toggle
+        const modeToggle = document.getElementById('modeToggle');
+        const modeIcon = document.getElementById('modeIcon');
+        const currentMode = localStorage.getItem('mode') || 'dark';
+
+        function applyMode(mode) {
+            if (mode === 'light') {
+                document.body.classList.add('light-mode');
+                modeIcon.classList.remove('bi-moon-fill');
+                modeIcon.classList.add('bi-sun-fill');
+            } else {
+                document.body.classList.remove('light-mode');
+                modeIcon.classList.remove('bi-sun-fill');
+                modeIcon.classList.add('bi-moon-fill');
+            }
+        }
+
+        applyMode(currentMode);
+
+        modeToggle.addEventListener('click', () => {
+            const newMode = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+            applyMode(newMode);
+            localStorage.setItem('mode', newMode);
+        });
+    </script>
+
+    <header class="hero-section text-center">
+        <h1>Upcoming Events</h1>
+        <p>Discover and participate in exciting events at MIT Academy of Engineering</p>
+    </header>
+
+    <div class="container my-5">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search events..." id="eventSearch">
+                    <button class="btn btn-primary" type="button"><i class="bi bi-search"></i></button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-md-end mt-3 mt-md-0">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
+                        <button type="button" class="btn btn-outline-primary" data-filter="academic">Academic</button>
+                        <button type="button" class="btn btn-outline-primary" data-filter="cultural">Cultural</button>
+                        <button type="button" class="btn btn-outline-primary" data-filter="sports">Sports</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4" id="eventContainer">
+            <div class="col-md-6 col-lg-4 event-item" data-category="cultural">
+                <div class="card h-100">
+                    <img src="img/nakshtra-bg.jpeg" class="card-img-top" alt="Nakshatra 2025">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-primary">Cultural</span>
+                            <small class="text-muted">Feb 15-17, 2025</small>
+                        </div>
+                        <h5 class="card-title">Nakshatra 2025</h5>
+                        <p class="card-text">Annual cultural festival featuring dance, music, drama, and more. Join us for three days of excitement and talent showcase.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="event_details.html" class="btn btn-outline-primary">View Details</a>
+                            <a href="scanner.html?event=Nakshatra%202025" class="btn btn-primary">Register</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 event-item" data-category="academic">
+                <div class="card h-100">
+                    <img src="img/techfest.jpg" class="card-img-top" alt="TechFest 2025">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-success">Academic</span>
+                            <small class="text-muted">Jan 20-22, 2025</small>
+                        </div>
+                        <h5 class="card-title">TechFest 2025</h5>
+                        <p class="card-text">Technical festival with workshops, hackathons, and competitions. Showcase your technical skills and win exciting prizes.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="event_details.html" class="btn btn-outline-primary">View Details</a>
+                            <a href="scanner.html?event=TechFest%202025" class="btn btn-primary">Register</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 event-item" data-category="sports">
+                <div class="card h-100">
+                    <img src="img/sports.png" class="card-img-top" alt="Sports Meet 2025">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-danger">Sports</span>
+                            <small class="text-muted">Mar 10-15, 2025</small>
+                        </div>
+                        <h5 class="card-title">Sports Meet 2025</h5>
+                        <p class="card-text">Annual sports competition featuring cricket, football, basketball, athletics, and more. Participate and show your sporting spirit.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="event_details.html" class="btn btn-outline-primary">View Details</a>
+                            <a href="scanner.html?event=Sports%20Meet%202025" class="btn btn-primary">Register</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 event-item" data-category="academic">
+                <div class="card h-100">
+                    <img src="img/aiws.jpg" class="card-img-top" alt="AI Workshop">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-success">Academic</span>
+                            <small class="text-muted">Dec 5, 2024</small>
+                        </div>
+                        <h5 class="card-title">AI & Machine Learning Workshop</h5>
+                        <p class="card-text">Hands-on workshop on artificial intelligence and machine learning fundamentals with industry experts.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="event_details.html" class="btn btn-outline-primary">View Details</a>
+                            <a href="scanner.html?event=AI%20Workshop" class="btn btn-primary">Register</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 event-item" data-category="cultural">
+                <div class="card h-100">
+                    <img src="img/alumni.jpg" class="card-img-top" alt="Alumni Meet">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-primary">Cultural</span>
+                            <small class="text-muted">Dec 20, 2024</small>
+                        </div>
+                        <h5 class="card-title">Alumni Meet 2024</h5>
+                        <p class="card-text">Annual gathering of MIT Academy of Engineering alumni. Network with former students and share experiences.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="event_details.html" class="btn btn-outline-primary">View Details</a>
+                            <a href="scanner.html?event=Alumni%20Meet" class="btn btn-primary">Register</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4 event-item" data-category="sports">
+                <div class="card h-100">
+                    <img src="img/chess.jpg" class="card-img-top" alt="Chess Tournament">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-danger">Sports</span>
+                            <small class="text-muted">Nov 25, 2024</small>
+                        </div>
+                        <h5 class="card-title">Inter-College Chess Tournament</h5>
+                        <p class="card-text">Strategic chess competition open to all colleges. Test your skills and compete for the championship title.</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="event_details.html" class="btn btn-outline-primary">View Details</a>
+                            <a href="scanner.html?event=Chess%20Tournament" class="btn btn-primary">Register</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Follow Us</h5>
+                    <a href="https://facebook.com" target="_blank"><img src="img/facebook.png" alt="Facebook" class="social-icon"></a>
+                    <a href="https://twitter.com" target="_blank"><img src="img/xtwitter.png" alt="Twitter" class="social-icon"></a>
+                    <a href="https://instagram.com" target="_blank"><img src="img/instagram.png" alt="Instagram" class="social-icon"></a>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="event.html">Events</a></li>
+                        <li><a href="nakshtra.html">Nakshatra</a></li>
+                        <li><a href="attendance.html">Attendance</a></li>
+                        <li><a href="feedback.html">Feedback</a></li>
+                        <li><a href="scanner.html">Scanner</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Us</h5>
+                    <p>MIT Academy of Engineering, Alandi</p>
+                    <p>Email: info@campusconnect.com</p>
+                    <p>Phone: +123 456 7890</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Campus Connect | All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Event filtering
+        document.querySelectorAll('.btn-group .btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.btn-group .btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                document.querySelectorAll('.event-item').forEach(item => {
+                    if (filter === 'all' || item.getAttribute('data-category') === filter) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Event search
+        document.getElementById('eventSearch').addEventListener('keyup', function() {
+            const searchValue = this.value.toLowerCase();
+            
+            document.querySelectorAll('.event-item').forEach(item => {
+                const title = item.querySelector('.card-title').textContent.toLowerCase();
+                const description = item.querySelector('.card-text').textContent.toLowerCase();
+                
+                if (title.includes(searchValue) || description.includes(searchValue)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

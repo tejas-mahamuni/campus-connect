@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner - Campus Connect</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Apple font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap">
+    <style>
+        .qr-container {
+            text-align: center;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            max-width: 300px;
+        }
+        #qrcode {
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+        }
+        .scanner-section {
+            background-color: #f8f9fa;
+            padding: 30px 0;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .tab-content {
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-top: 0;
+            border-radius: 0 0 8px 8px;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .event-card {
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        footer {
+            background-color: #333333;
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+        footer a {
+            color: white;
+            text-decoration: none;
+        }
+        footer a:hover {
+            color: #0d6efd;
+        }
+        footer .social-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 15px;
+        }
+        footer .copyright {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Campus Connect</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="event.html">Events</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="scanner.html">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="nakshtra.html">Nakshatra</a></li>
+                    <li class="nav-item"><a class="nav-link" href="attendance.html">Attendance</a></li>
+                    <li class="nav-item"><a class="nav-link" href="feedback.html">Feedback</a></li>
+                    <li class="nav-item">
+                        <form class="d-flex">
+                            <div class="search-bar">
+                                <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            </div>
+                        </form>
+                    </li>
+                    <li class="nav-item d-flex align-items-center ms-3">
+                        <button id="modeToggle" class="btn btn-outline-light btn-sm" title="Toggle Dark/Light Mode">
+                            <i class="bi bi-moon-fill" id="modeIcon"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <a href="login.html" class="btn btn-primary ms-lg-3 mt-2 mt-lg-0">Log in</a>
+                    </li>
+                    <li class="nav-item">
+                        <div id="userProfileBtn" style="display: none;"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <script>
+        // Dark/Light mode toggle
+        const modeToggle = document.getElementById('modeToggle');
+        const modeIcon = document.getElementById('modeIcon');
+        const currentMode = localStorage.getItem('mode') || 'dark';
+
+        function applyMode(mode) {
+            if (mode === 'light') {
+                document.body.classList.add('light-mode');
+                modeIcon.classList.remove('bi-moon-fill');
+                modeIcon.classList.add('bi-sun-fill');
+            } else {
+                document.body.classList.remove('light-mode');
+                modeIcon.classList.remove('bi-sun-fill');
+                modeIcon.classList.add('bi-moon-fill');
+            }
+        }
+
+        applyMode(currentMode);
+
+        modeToggle.addEventListener('click', () => {
+            const newMode = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+            applyMode(newMode);
+            localStorage.setItem('mode', newMode);
+        });
+    </script>
+    
+    <header class="hero-section text-center">
+        <h1>Event QR Code System</h1>
+        <p>Register for events and get your unique QR code for easy check-in</p>
+    </header>
+    
+    <div class="container my-5">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab" aria-controls="register" aria-selected="true">Register for Event</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="qr-tab" data-bs-toggle="tab" data-bs-target="#qr" type="button" role="tab" aria-controls="qr" aria-selected="false">My QR Code</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="scan-tab" data-bs-toggle="tab" data-bs-target="#scan" type="button" role="tab" aria-controls="scan" aria-selected="false">Scan QR Code</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <!-- Register Tab -->
+            <div class="tab-pane fade show active" id="register" role="tabpanel" aria-labelledby="register-tab">
+                <h3 class="mb-4">Select an Event to Register</h3>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card event-card">
+                            <img src="img/nakshtra-bg.jpeg" class="card-img-top" alt="Nakshatra 2025">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-primary">Cultural</span>
+                                    <small class="text-muted">Feb 15-17, 2025</small>
+                                </div>
+                                <h5 class="card-title">Nakshatra 2025</h5>
+                                <p class="card-text">Annual cultural festival featuring dance, music, drama, and more. Join us for three days of excitement and talent showcase.</p>
+                                <button class="btn btn-primary select-event" data-event="Nakshatra 2025">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card event-card">
+                            <img src="img/techfest.jpg" class="card-img-top" alt="TechFest 2025">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-success">Academic</span>
+                                    <small class="text-muted">Jan 20-22, 2025</small>
+                                </div>
+                                <h5 class="card-title">TechFest 2025</h5>
+                                <p class="card-text">Technical festival with workshops, hackathons, and competitions. Showcase your technical skills and win exciting prizes.</p>
+                                <button class="btn btn-primary select-event" data-event="TechFest 2025">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card event-card">
+                            <img src="img/sports.png" class="card-img-top" alt="Sports Meet 2025">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-danger">Sports</span>
+                                    <small class="text-muted">Mar 10-15, 2025</small>
+                                </div>
+                                <h5 class="card-title">Sports Meet 2025</h5>
+                                <p class="card-text">Annual sports competition featuring cricket, football, basketball, athletics, and more. Participate and show your sporting spirit.</p>
+                                <button class="btn btn-primary select-event" data-event="Sports Meet 2025">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card event-card">
+                            <img src="img/aiws.jpg" class="card-img-top" alt="AI Workshop">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-success">Academic</span>
+                                    <small class="text-muted">Dec 5, 2024</small>
+                                </div>
+                                <h5 class="card-title">AI & Machine Learning Workshop</h5>
+                                <p class="card-text">Hands-on workshop on artificial intelligence and machine learning fundamentals with industry experts.</p>
+                                <button class="btn btn-primary select-event" data-event="AI Workshop">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card event-card">
+                            <img src="img/alumni.jpg" class="card-img-top" alt="Alumni Meet">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-primary">Cultural</span>
+                                    <small class="text-muted">Dec 20, 2024</small>
+                                </div>
+                                <h5 class="card-title">Alumni Meet 2024</h5>
+                                <p class="card-text">Annual gathering of MIT Academy of Engineering alumni. Network with former students and share experiences.</p>
+                                <button class="btn btn-primary select-event" data-event="Alumni Meet">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card event-card">
+                            <img src="img/chess.jpg" class="card-img-top" alt="Chess Tournament">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-danger">Sports</span>
+                                    <small class="text-muted">Nov 25, 2024</small>
+                                </div>
+                                <h5 class="card-title">Inter-College Chess Tournament</h5>
+                                <p class="card-text">Strategic chess competition open to all colleges. Test your skills and compete for the championship title.</p>
+                                <button class="btn btn-primary select-event" data-event="Chess Tournament">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="registration-form" class="mt-5" style="display: none;">
+                    <h4 id="selected-event-title">Register for <span id="event-name"></span></h4>
+                    <form id="eventRegForm" class="mt-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fullName" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="fullName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="college" class="form-label">College</label>
+                                <input type="text" class="form-control" id="college" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventCategory" class="form-label">Event Category</label>
+                            <select class="form-select" id="eventCategory" required>
+                                <option value="" selected disabled>Select category</option>
+                                <!-- Options will be populated dynamically based on selected event -->
+                            </select>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                            <label class="form-check-label" for="termsCheck">I agree to the terms and conditions</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register & Generate QR Code</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- QR Code Tab -->
+            <div class="tab-pane fade" id="qr" role="tabpanel" aria-labelledby="qr-tab">
+                <div id="no-qr-message" class="text-center py-5">
+                    <i class="bi bi-qr-code fs-1 text-secondary mb-3"></i>
+                    <h4>No QR Code Available</h4>
+                    <p>Please register for an event first to generate your QR code.</p>
+                    <button class="btn btn-primary" id="go-to-register">Register Now</button>
+                </div>
+                
+                <div id="qr-display" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title mb-4">Your Registration Details</h4>
+                                    <p><strong>Name:</strong> <span id="qr-name"></span></p>
+                                    <p><strong>Email:</strong> <span id="qr-email"></span></p>
+                                    <p><strong>Event:</strong> <span id="qr-event"></span></p>
+                                    <p><strong>Category:</strong> <span id="qr-category"></span></p>
+                                    <p><strong>Registration ID:</strong> <span id="qr-id"></span></p>
+                                    <div class="mt-4">
+                                        <button class="btn btn-primary" id="download-qr">Download QR Code</button>
+                                        <button class="btn btn-outline-secondary ms-2" id="new-registration">Register for Another Event</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="card-title mb-4">Your QR Code</h4>
+                                    <p>Present this QR code at the event for check-in</p>
+                                    <div class="qr-container">
+                                        <div id="qrcode"></div>
+                                        <p class="small text-muted mt-2">Registration ID: <span id="qr-id-display"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scan Tab (for organizers) -->
+            <div class="tab-pane fade" id="scan" role="tabpanel" aria-labelledby="scan-tab">
+                <div class="scanner-section">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="mb-3">Scan Attendee QR Code</h4>
+                                    <p>This section is for event organizers to scan attendee QR codes for check-in.</p>
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle-fill me-2"></i>
+                                        You need organizer privileges to use this feature.
+                                    </div>
+                                    <button class="btn btn-primary" id="start-scanner" disabled>Login as Organizer</button>
+                                    <a href="login.html" class="btn btn-outline-primary ms-2">Login</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="mb-3">Manual Check-in</h4>
+                                    <p>Enter registration ID manually if QR code is not scannable.</p>
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" placeholder="Enter Registration ID" id="manual-id">
+                                        <button class="btn btn-primary" type="button" id="check-id" disabled>Verify</button>
+                                    </div>
+                                    <div class="form-text">Example: REG-2025-1234</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Follow Us</h5>
+                    <a href="https://facebook.com" target="_blank"><img src="img/facebook.png" alt="Facebook" class="social-icon"></a>
+                    <a href="https://twitter.com" target="_blank"><img src="img/xtwitter.png" alt="Twitter" class="social-icon"></a>
+                    <a href="https://instagram.com" target="_blank"><img src="img/instagram.png" alt="Instagram" class="social-icon"></a>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="event.html">Events</a></li>
+                        <li><a href="nakshtra.html">Nakshatra</a></li>
+                        <li><a href="attendance.html">Attendance</a></li>
+                        <li><a href="feedback.html">Feedback</a></li>
+                        <li><a href="scanner.html">QR Scanner</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Us</h5>
+                    <p>MIT Academy of Engineering, Alandi</p>
+                    <p>Email: info@campusconnect.com</p>
+                    <p>Phone: +123 456 7890</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Campus Connect | All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        // Removed EmailJS initialization as per undo request
+
+        // Event categories by event type
+        const eventCategories = {
+            "Nakshatra 2025": ["Dance Competition", "Music Performance", "Drama & Theatre", "Fashion Show", "Art & Photography", "Literary Events"],
+            "TechFest 2025": ["Workshops", "Hackathons", "Competitions", "Technical Talks"],
+            "Sports Meet 2025": ["Cricket", "Football", "Basketball", "Athletics", "Volleyball", "Chess"],
+            "AI Workshop": ["Machine Learning", "Deep Learning", "AI Fundamentals"],
+            "Alumni Meet": ["Networking", "Talks", "Cultural Events"],
+            "Chess Tournament": ["Rapid", "Blitz", "Classical"],
+            "Sports Carnival": ["Cricket", "Football", "Basketball", "Volleyball", "Athletics", "Chess"],
+            "Technical Symposium": ["Hackathon", "Paper Presentation", "Project Exhibition", "Coding Competition", "Robotics", "Workshop"]
+        };
+        
+        // Store registration data
+        let currentRegistration = null;
+        
+        // Check if there's saved registration data or event query parameter
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        const eventFromQuery = getQueryParam('event');
+
+        if (eventFromQuery) {
+            // Auto-select event from query parameter
+            document.getElementById('event-name').textContent = eventFromQuery;
+
+            // Populate event categories
+            const categorySelect = document.getElementById('eventCategory');
+            categorySelect.innerHTML = '<option value="" selected disabled>Select category</option>';
+
+            const categories = eventCategories[eventFromQuery] || [];
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+
+            // Show registration form
+            const registrationForm = document.getElementById('registration-form');
+            registrationForm.style.display = 'block';
+
+            // Scroll to registration form
+            setTimeout(() => {
+                registrationForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        } else if (localStorage.getItem('eventRegistration')) {
+            currentRegistration = JSON.parse(localStorage.getItem('eventRegistration'));
+            console.log("Loaded registration from localStorage:", currentRegistration);
+            showQRCode();
+        } else {
+            console.log("No registration data found in localStorage.");
+        }
+        
+        // Event selection
+        document.querySelectorAll('.select-event').forEach(button => {
+            button.addEventListener('click', function() {
+                const eventName = this.getAttribute('data-event');
+                document.getElementById('event-name').textContent = eventName;
+                
+                // Populate event categories
+                const categorySelect = document.getElementById('eventCategory');
+                categorySelect.innerHTML = '<option value="" selected disabled>Select category</option>';
+                
+                // Get categories for the selected event
+                const categories = eventCategories[eventName] || [];
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+                
+                // Show registration form
+                const registrationForm = document.getElementById('registration-form');
+                registrationForm.style.display = 'block';
+                
+                // Scroll to registration form
+                setTimeout(() => {
+                    registrationForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            });
+        });
+        
+        // Form submission
+        document.getElementById('eventRegForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Generate a random registration ID
+            const regId = 'REG-2025-' + Math.floor(1000 + Math.random() * 9000);
+            
+            // Collect form data
+            const eventName = document.getElementById('event-name').textContent;
+            const eventCategory = document.getElementById('eventCategory').value;
+            console.log("Form submission event name:", eventName);
+            console.log("Form submission event category:", eventCategory);
+            
+            currentRegistration = {
+                id: regId,
+                name: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                college: document.getElementById('college').value,
+                event: eventName,
+                category: eventCategory,
+                registrationDate: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('eventRegistration', JSON.stringify(currentRegistration));
+            
+            // Removed EmailJS send call as per undo request
+            
+            // Switch to QR tab and show QR code
+            const qrTab = new bootstrap.Tab(document.getElementById('qr-tab'));
+            qrTab.show();
+            
+            // Show QR code immediately
+            showQRCode();
+        });
+        
+        // Function to display QR code
+        function showQRCode() {
+            console.log("showQRCode called with currentRegistration:", currentRegistration);
+            if (currentRegistration && currentRegistration.id && currentRegistration.name && currentRegistration.email && currentRegistration.event && currentRegistration.category) {
+                // Hide no-qr message and show QR display
+                document.getElementById('no-qr-message').style.display = 'none';
+                document.getElementById('qr-display').style.display = 'block';
+                
+                // Fill in registration details
+                document.getElementById('qr-name').textContent = currentRegistration.name;
+                document.getElementById('qr-email').textContent = currentRegistration.email;
+                document.getElementById('qr-event').textContent = currentRegistration.event;
+                document.getElementById('qr-category').textContent = currentRegistration.category;
+                document.getElementById('qr-id').textContent = currentRegistration.id;
+                document.getElementById('qr-id-display').textContent = currentRegistration.id;
+                
+                // Generate QR code
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = ''; // Clear previous QR code
+                
+                try {
+                    console.log("Generating QR code with data:", JSON.stringify(currentRegistration));
+                    if (typeof QRCode === 'undefined') {
+                        throw new Error("QRCode library is not loaded.");
+                    }
+                    const qr = new QRCode(qrContainer, {
+                        text: JSON.stringify(currentRegistration),
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                    console.log("QR code generated successfully");
+                } catch (error) {
+                    console.error("Error generating QR code:", error);
+                    qrContainer.innerHTML = '<p class="text-danger">Error generating QR code. Please try again.</p>';
+                }
+            } else {
+                console.warn("Invalid registration data for QR code generation:", currentRegistration);
+                // Show no-qr message and hide QR display
+                document.getElementById('no-qr-message').style.display = 'block';
+                document.getElementById('qr-display').style.display = 'none';
+            }
+        }
+        
+        // Download QR code
+        document.getElementById('download-qr').addEventListener('click', function() {
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            if (qrCanvas) {
+                const link = document.createElement('a');
+                link.download = `qr-code-${currentRegistration.id}.png`;
+                link.href = qrCanvas.toDataURL('image/png');
+                link.click();
+            } else {
+                alert('QR code not found. Please try generating it again.');
+            }
+        });
+        
+        // Go to register tab
+        document.getElementById('go-to-register').addEventListener('click', function() {
+            const registerTab = new bootstrap.Tab(document.getElementById('register-tab'));
+            registerTab.show();
+        });
+        
+        // Register for another event
+        document.getElementById('new-registration').addEventListener('click', function() {
+            const registerTab = new bootstrap.Tab(document.getElementById('register-tab'));
+            registerTab.show();
+            document.getElementById('registration-form').style.display = 'none';
+            document.getElementById('eventRegForm').reset();
+        });
+    </script>
+</body>
+</html>
