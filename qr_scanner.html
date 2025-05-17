@@ -102,8 +102,12 @@
             Html5Qrcode.getCameras().then(cameras => {
                 console.log('Cameras found:', cameras);
                 if (cameras && cameras.length) {
-                    // Try to find a camera with an id property
-                    const camera = cameras.find(cam => cam.id);
+                    // Prefer back camera if available
+                    let camera = cameras.find(cam => cam.label.toLowerCase().includes('back') || cam.label.toLowerCase().includes('rear'));
+                    if (!camera) {
+                        // Fallback to first camera
+                        camera = cameras[0];
+                    }
                     if (camera && camera.id) {
                         const cameraId = camera.id;
                         html5QrcodeScanner.start(
