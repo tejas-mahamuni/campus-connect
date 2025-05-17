@@ -32,8 +32,6 @@
             <p>Camera feed will appear here</p>
         </div>
         <div class="text-center mb-3">
-            <label for="cameraSelect" class="form-label">Select Camera</label>
-            <select id="cameraSelect" class="form-select mb-3"></select>
             <button id="startScanBtn" class="btn btn-primary">Start Camera</button>
             <button id="stopScanBtn" class="btn btn-secondary" disabled>Stop Camera</button>
         </div>
@@ -49,7 +47,6 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
         const scannerPlaceholder = document.getElementById('scanner-placeholder');
-        const cameraSelect = document.getElementById('cameraSelect');
         const startScanBtn = document.getElementById('startScanBtn');
         const stopScanBtn = document.getElementById('stopScanBtn');
         const scanResult = document.getElementById('scanResult');
@@ -103,39 +100,46 @@
             if (!html5QrcodeScanner) {
                 html5QrcodeScanner = new Html5Qrcode("scanner-placeholder");
             }
-            if (!currentCameraId) {
-                showMessage('No camera selected.', 'danger');
-                return;
-            }
-            html5QrcodeScanner.start(
-                currentCameraId,
-                {
-                    fps: 10,
-                    qrbox: 400
-                },
-                onScanSuccess,
-                onScanFailure
-            ).then(() => {
-                startScanBtn.disabled = true;
-                stopScanBtn.disabled = false;
-                clearMessage();
+            Html5Qrcode.getCameras().then(cameras => {
+                console.log('Cameras found:', cameras);
+                if (cameras && cameras.length) {
+                    // Detect if mobile device
+                    const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+                    if (isMobile) {
+                        // Prefer back camera on mobile
+                        let backCamera = cameras.find(cam => cam.label.toLowerCase().includes('back') || cam.label.toLowerCase().includes('rear'));
+                        if (backCamera) {
+                            currentCameraId = backCamera.id;
+                        } else {
+                            currentCameraId = cameras[0].id;
+                        }
+                    } else {
+                        // Use default camera on desktop
+                        currentCameraId = cameras[0].id;
+                    }
+                    html5QrcodeScanner.start(
+                        currentCameraId,
+                        {
+                            fps: 10,
+                            qrbox: 400
+                        },
+                        onScanSuccess,
+                        onScanFailure
+                    ).then(() => {
+                        startScanBtn.disabled = true;
+                        stopScanBtn.disabled = false;
+                        clearMessage();
+                    }).catch(err => {
+                        showMessage('Unable to start scanning: ' + err, 'danger');
+                    });
+                } else {
+                    showMessage('No cameras found.', 'danger');
+                    console.error('No cameras found.');
+                }
             }).catch(err => {
-                showMessage('Unable to start scanning: ' + err, 'danger');
+                showMessage('Error getting cameras: ' + err, 'danger');
+                console.error('Error getting cameras:', err);
             });
-        });
-
-        cameraSelect.addEventListener('change', () => {
-            currentCameraId = cameraSelect.value;
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner.clear();
-                    startScanBtn.disabled = false;
-                    stopScanBtn.disabled = true;
-                    clearMessage();
-                }).catch(err => {
-                    console.error('Failed to stop QR scanner on camera change:', err);
-                });
-            }
         });
 
         stopScanBtn.addEventListener('click', () => {
