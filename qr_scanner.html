@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QR Code Scanner - Campus Connect</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <style>
+        body {
+            font-family: 'SF Pro Display', sans-serif;
+            padding: 2rem;
+            background-color: #f8f9fa;
+        }
+        #scanner-placeholder {
+            min-height: 300px;
+            border: 2px dashed #6c757d;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4 text-center">QR Code Scanner</h1>
+        <div id="scanner-placeholder">
+            <i class="bi bi-camera-fill fs-1"></i>
+            <p>Camera feed will appear here</p>
+        </div>
+        <div class="text-center mb-3">
+            <button id="startScanBtn" class="btn btn-primary">Start Camera</button>
+            <button id="stopScanBtn" class="btn btn-secondary" disabled>Stop Camera</button>
+        </div>
+        <div id="scanResult" class="alert alert-info d-none"></div>
+        <div class="alert alert-warning mt-3">
+            <strong>Note:</strong> Ensure you are accessing this page over HTTPS and using a supported browser (Chrome, Firefox, Edge). Camera access may be blocked otherwise.
+        </div>
+        <div class="text-center">
+            <a href="attendance.html" class="btn btn-link">Back to Attendance</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script>
+        const scannerPlaceholder = document.getElementById('scanner-placeholder');
+        const startScanBtn = document.getElementById('startScanBtn');
+        const stopScanBtn = document.getElementById('stopScanBtn');
+        const scanResult = document.getElementById('scanResult');
+
+        let html5QrcodeScanner;
+
+        function showMessage(message, type = 'info') {
+            scanResult.textContent = message;
+            scanResult.className = 'alert alert-' + type;
+            scanResult.classList.remove('d-none');
+        }
+
+        function clearMessage() {
+            scanResult.textContent = '';
+            scanResult.classList.add('d-none');
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log('QR Code detected:', decodedText);
+            try {
+                const registrationData = JSON.parse(decodedText);
+                const attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+                const existingEntry = attendanceData.find(entry => entry.regId === registrationData.id);
+                if (existingEntry) {
+                    showMessage(`Participant with ID ${registrationData.id} is already checked in.`, 'warning');
+                } else {
+                    const checkInTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const newEntry = {
+                        regId: registrationData.id,
+                        name: registrationData.name,
+                        collegeName: registrationData.college,
+                        eventName: registrationData.event,
+                        checkInTime: checkInTime
+                    };
+                    attendanceData.push(newEntry);
+                    localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                    showMessage(`Checked in participant: ${registrationData.name} (${registrationData.id})`, 'success');
+                }
+            } catch (error) {
+                showMessage('Invalid QR code scanned.', 'danger');
+            }
+        }
+
+        function onScanFailure(error) {
+            // console.log('QR scan failed:', error);
+            // We can log scan failures if needed for debugging
+        }
+
+        startScanBtn.addEventListener('click', () => {
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5Qrcode("scanner-placeholder");
+            }
+            Html5Qrcode.getCameras().then(cameras => {
+                console.log('Cameras found:', cameras);
+                if (cameras && cameras.length) {
+                    // Try to find a camera with an id property
+                    const camera = cameras.find(cam => cam.id);
+                    if (camera && camera.id) {
+                        const cameraId = camera.id;
+                        html5QrcodeScanner.start(
+                            cameraId,
+                            {
+                                fps: 10,
+                                qrbox: 400
+                            },
+                            onScanSuccess,
+                            onScanFailure
+                        ).then(() => {
+                            startScanBtn.disabled = true;
+                            stopScanBtn.disabled = false;
+                            clearMessage();
+                        }).catch(err => {
+                            showMessage('Unable to start scanning: ' + err, 'danger');
+                        });
+                    } else {
+                        showMessage('No valid camera ID found in detected cameras.', 'danger');
+                        console.error('No valid camera ID found in cameras:', cameras);
+                    }
+                } else {
+                    showMessage('No cameras found.', 'danger');
+                    console.error('No cameras found.');
+                }
+            }).catch(err => {
+                showMessage('Error getting cameras: ' + err, 'danger');
+                console.error('Error getting cameras:', err);
+            });
+        });
+
+        stopScanBtn.addEventListener('click', () => {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    html5QrcodeScanner.clear();
+                    startScanBtn.disabled = false;
+                    stopScanBtn.disabled = true;
+                    clearMessage();
+                }).catch(err => {
+                    showMessage('Failed to stop QR scanner: ' + err, 'danger');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
