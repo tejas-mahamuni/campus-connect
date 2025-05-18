@@ -938,17 +938,24 @@
             Html5Qrcode.getCameras().then(cameras => {
                 if (cameras && cameras.length) {
                     const cameraId = cameras[0].id;
-                    html5QrcodeScanner.start(
-                        cameraId,
-                        {
-                            fps: 10,
-                            qrbox: 250
-                        },
-                        qrCodeSuccessCallback
-                    ).catch(err => {
-                        console.error('Unable to start scanning.', err);
-                        alert('Unable to start scanning: ' + err);
-                    });
+            html5QrcodeScanner.start(
+                cameraId,
+                {
+                    fps: 10,
+                    qrbox: 250
+                },
+                qrCodeSuccessCallback,
+                (errorMessage) => {
+                    // Handle scan failure or decode errors here
+                    console.warn('QR code scan error:', errorMessage);
+                    // Do not store error messages in localStorage or attendanceData
+                    // Optionally show alert or notification
+                    // alert('QR code scan error: ' + errorMessage);
+                }
+            ).catch(err => {
+                console.error('Unable to start scanning.', err);
+                alert('Unable to start scanning: ' + err);
+            });
                 } else {
                     alert('No cameras found.');
                 }
