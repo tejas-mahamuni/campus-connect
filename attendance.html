@@ -867,7 +867,27 @@
 
         // Load attendance data from localStorage and render table
         function loadAttendanceData() {
-            const attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+            let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+            // Filter out invalid entries that contain error messages
+            attendanceData = attendanceData.filter(entry => {
+                if (!entry || typeof entry !== 'object') return false;
+                const invalidStrings = [
+                    'QR code parse error',
+                    'No MultiFormat Readers were able to detect the code',
+                    'error = D:'
+                ];
+                for (const str of invalidStrings) {
+                    if (
+                        (entry.regId && entry.regId.includes(str)) ||
+                        (entry.name && entry.name.includes(str)) ||
+                        (entry.collegeName && entry.collegeName.includes(str)) ||
+                        (entry.eventName && entry.eventName.includes(str))
+                    ) {
+                        return false;
+                    }
+                }
+                return true;
+            });
             const tbody = document.querySelector('#organizerSection table tbody');
             tbody.innerHTML = '';
             attendanceData.forEach(entry => {
@@ -887,6 +907,8 @@
                 tbody.appendChild(newRow);
             });
             paginateTable();
+            // Save cleaned attendanceData back to localStorage
+            saveAttendanceData(attendanceData);
         }
 
         // Save attendance data to localStorage
