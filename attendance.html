@@ -833,6 +833,36 @@
         window.addEventListener('DOMContentLoaded', () => {
             checkLoginStatus();
             loadAttendanceData();
+
+            // Check if there is new scanned QR info in localStorage
+            const scannedQRInfo = localStorage.getItem('scannedQRInfo');
+            if (scannedQRInfo) {
+                try {
+                    const registrationData = JSON.parse(scannedQRInfo);
+                    const attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+                    const existingEntry = attendanceData.find(entry => entry.regId === registrationData.id);
+                    if (existingEntry) {
+                        alert(`Participant with ID ${registrationData.id} is already checked in.`);
+                    } else {
+                        const checkInTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        const newEntry = {
+                            regId: registrationData.id,
+                            name: registrationData.name,
+                            collegeName: registrationData.college,
+                            eventName: registrationData.event,
+                            checkInTime: checkInTime
+                        };
+                        attendanceData.push(newEntry);
+                        saveAttendanceData(attendanceData);
+                        loadAttendanceData();
+                        alert(`Checked in participant: ${registrationData.name} (${registrationData.id})`);
+                    }
+                } catch (error) {
+                    alert('Invalid QR code data.');
+                }
+                // Remove the scanned QR info from localStorage after processing
+                localStorage.removeItem('scannedQRInfo');
+            }
         });
 
         // Load attendance data from localStorage and render table
