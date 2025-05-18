@@ -78,8 +78,8 @@
                         registrationData = { id: decodedText, name: "Unknown", college: "Unknown", event: "Unknown" };
                     }
 
-                    // Show readable alert info
-                    // alert(`QR Code Scanned:\nID: ${registrationData.id || ''}\nName: ${registrationData.name || ''}\nCollege: ${registrationData.college || ''}\nEvent: ${registrationData.event || ''}`);
+                    // Show readable alert info after successful scan
+                    alert(`QR Code Scanned:\nID: ${registrationData.id || ''}\nName: ${registrationData.name || ''}\nCollege: ${registrationData.college || ''}\nEvent: ${registrationData.event || ''}`);
 
                     // Display scanned info in table
                     const tableBody = document.getElementById('scannedDataBody');
