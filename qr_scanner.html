@@ -116,7 +116,14 @@ domReady(function () {
 
     // If found you qr code
     function onScanSuccess(decodeText, decodeResult) {
-        alert("You Qr is : " + decodeText, decodeResult);
+        try {
+            // Save the scanned QR info in localStorage
+            localStorage.setItem('scannedQRInfo', decodeText);
+            // Redirect to attendance.html
+            window.location.href = 'attendance.html';
+        } catch (error) {
+            alert("Error processing QR code: " + error);
+        }
     }
 
     let htmlscanner = new Html5QrcodeScanner(
